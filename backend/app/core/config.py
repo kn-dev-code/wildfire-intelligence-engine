@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # Docker/Postgres Specifies
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
-    POSTGRES_SERVER: str = "localhost"
+    POSTGRES_SERVER: str = "db"
     POSTGRES_PORT: int = 5432
     DB_NAME: str
 
