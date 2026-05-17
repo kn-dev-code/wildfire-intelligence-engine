@@ -10,6 +10,6 @@ main_router = APIRouter()
 
 
 
-main_router.include_router(fire_router.prefix("/api/v1/fires"))
-main_router.include_router(weather_router.prefix("/api/v1/weather"))
-main_router.include_router(intelligence_router.prefix("/api/v1/intelligence"))
+main_router.include_router(fire_router, prefix="/api/v1/fires")
+main_router.include_router(weather_router, prefix="/api/v1/weather")
+main_router.include_router(intelligence_router, prefix="/api/v1/intelligence")
