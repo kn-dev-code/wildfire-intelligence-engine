@@ -1,19 +1,28 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlmodel import Session
+from app.core.database import get_session
+from app.schemas.fire_schema import FireUpdate
+from app.controllers.fire_controller import (
+    get_fire_report_controller,
+    get_all_fire_reports_controller,
+    update_fire_report_controller,
+    delete_fire_report_controller
+)
 
 fire_router = APIRouter()
 
 @fire_router.get("")
-def get_fires():
-    return {"message": "List of fires"}
+def get_all_fires(db: Session = Depends(get_session)):
+    return get_all_fire_reports_controller(db)
 
 @fire_router.get("/{fire_id}")
-def get_fire_by_id(fire_id: int):
-    return {"message": f"Details of fire with ID: {fire_id}"}
+def get_single_fire(fire_id: int, db: Session = Depends(get_session)):
+    return get_fire_report_controller(fire_id, db)
 
-@fire_router.post("")
-def create_fire():
-    return {"message": "Create a new fire record"}
+@fire_router.patch("/{fire_id}")
+def update_fire(fire_id: int, fire_data: FireUpdate, db: Session = Depends(get_session)):
+    return update_fire_report_controller(fire_id, fire_data, db)
 
-@fire_router.patch("/{fire_id}/status")
-def update_fire_status(fire_id: int):
-    return {"message": f"Update status of fire with ID: {fire_id}"}
+@fire_router.delete("/{fire_id}")
+def delete_fire(fire_id: int, db: Session = Depends(get_session)):
+    return delete_fire_report_controller(fire_id, db)
