@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi import APIRouter
 from app.routes.fire_router import fire_router
-from app.routes.weather import weather_router
+from backend.app.routes.weather_router import weather_router
 from app.routes.intelligence_router import intelligence_router
 from app.routes.user_router import user_router
 
