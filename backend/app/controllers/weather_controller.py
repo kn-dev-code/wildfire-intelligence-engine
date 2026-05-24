@@ -1,5 +1,5 @@
 from fastapi import status, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session
 from app.models.weather import WeatherRecord
 from app.schemas.weather_schema import WeatherQuery
 from app.controllers.fire_controller import _verify_active_user

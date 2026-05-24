@@ -29,11 +29,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include your main aggregator router
 app.include_router(main_router)
 
 
 @app.get("/")
 def read_root():
-    # 💡 Added the 'f' prefix so the project name renders correctly
     return {"Message": f"Welcome to the {settings.PROJECT_NAME}"}
