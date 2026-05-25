@@ -23,6 +23,7 @@ djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.1
 ecdsa==0.19.2
 executing==2.2.1
+email-validator>=2.0.0
 fastapi==0.136.1
 filelock==3.18.0
 fonttools==4.60.0
