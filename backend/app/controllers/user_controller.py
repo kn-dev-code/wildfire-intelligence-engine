@@ -30,7 +30,7 @@ def login_user_controller(login_data: UserLogin, response: Response, db: Session
 
     if not user or not user.is_active:
         raise HTTPException(
-            status_code = status.HTTP_401.UNAUTHORIZED,
+            status_code = status.HTTP_401_UNAUTHORIZED,
             detail = "Invalid email or password"
         )
     
@@ -79,7 +79,7 @@ def update_user_controller(user_id: int, user_data: UserCreate, db: Session):
             status_code = status.HTTP_403_FORBIDDEN,
             detail = "This account has been deactivated"
         )
-    user.usernmae = user_data.username
+    user.username = user_data.username
     user.email = user_data.email
     user.hashed_password = f"hashed_version_of_{user_data.password}"
 

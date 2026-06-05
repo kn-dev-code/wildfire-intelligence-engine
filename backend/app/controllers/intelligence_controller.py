@@ -12,7 +12,7 @@ import pandas as pd
 cachedir = './wildfire_model_cache'
 memory = Memory(cachedir, verbose=0)
 try:
-    model = joblib.load('best_xgb_model.pkl')
+    model = joblib.load('best_xgb.pkl')
 except Exception as e:
     print(f"Production Warning: Model file not found: {e}")
     model = None
