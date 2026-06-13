@@ -2,3 +2,4 @@
 .subframe
 sync.json
 components.json
+.frontend.env

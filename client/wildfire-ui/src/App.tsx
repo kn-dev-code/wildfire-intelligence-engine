@@ -3,7 +3,6 @@ import SignIn from "./routes/auth/log/signin";
 import SignUp from "./routes/auth/log/signup";
 import Navbar from "./routes/constants/navbar";
 import Dashboard from "./routes/home/dashboard";
-import Footer from "./routes/constants/footer";
 
 const App = () => {
   return (
