@@ -47,7 +47,7 @@ const Footer = () => {
       </div>
       <div className="flex w-full max-w-5xl items-center border-t border-solid border-neutral-border pt-6">
         <span className="text-caption font-caption text-subtext-color">
-          © 2024 PyroSense. All rights reserved.
+          © 2026 PyroSense. All rights reserved.
         </span>
       </div>
     </div>
