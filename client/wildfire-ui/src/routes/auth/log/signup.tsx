@@ -5,10 +5,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldLabel, FieldGroup } from "../../../ui/components/ui/field";
 import { Input } from "../../../ui/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 import { FieldDescription } from "../../../ui/components/ui/field";
+import { useRegisterUser } from "../../../hooks/use-auth";
 
 const SignUp = () => {
+  const navigate = useNavigate();
+  const {mutate: regUser, isPending} = useRegisterUser();
   const userValidation = z.object({
     username: z.string().min(8, "Username must be more than 8 characters"),
     email: z.string().email("Invalid email address"),
@@ -17,7 +20,7 @@ const SignUp = () => {
 
   type userRegister = z.infer<typeof userValidation>;
 
-  const formData = useForm<userRegister>({
+  const {register, handleSubmit, formState: {errors}, } = useForm<userRegister>({
     resolver: zodResolver(userValidation),
     defaultValues: {
       username: "",
@@ -27,8 +30,12 @@ const SignUp = () => {
   });
 
   const onSubmit = (data: userRegister) => {
-
-  }
+  regUser(data, {
+    onSuccess: () => {
+      navigate("/dashboard");
+    },
+  });
+  };
 
 
   return (
@@ -57,15 +64,21 @@ const SignUp = () => {
             </span>
             <div className="flex h-px grow shrink-0 basis-0 flex-col items-center gap-2 bg-neutral-border" />
             {/* Form Component */}
-            <form onSubmit ={formData.handleSubmit(onSubmit)}>
+            <form onSubmit ={handleSubmit(onSubmit)}>
               <FieldGroup>
                 <Field>
                   <FieldLabel htmlFor="username">Username</FieldLabel>
-                  <Input id="username" placeholder="johndoe450" />
+                  <Input id="username" placeholder="johndoe450" {...register("username")}/>
+                  {errors.username && (
+                    <span className = "text-red-500 text-xs">{errors.username.message}</span>
+                  )}
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <Input id="name" placeholder="you@pyrosense.io" required />
+                  <Input id="name" placeholder="you@pyrosense.io" required {...register("email")}/>
+                  {errors.email && (
+                    <span className = "text-red-500 text-xs">{errors.email.message}</span>
+                  )}
                 </Field>
                 <Field>
                   <FieldLabel>Password</FieldLabel>
@@ -73,11 +86,15 @@ const SignUp = () => {
                     id="password"
                     placeholder="Enter your password"
                     required
+                    {...register("password")}
                   />
+                  {errors.password && (
+                    <span className = "text-red-500 text-xs">{errors.password.message}</span>
+                  )}
                 </Field>
               </FieldGroup>
-              <Button className="bg-[#2563EB] text-white w-sm p-5 relative top-5 rounded-lg hover:cursor-pointer hover:scale-105 duration-300 hover:bg-[#537de7] hover:text-black">
-                Sign Up
+              <Button disabled = {isPending} className="bg-[#2563EB] text-white w-sm p-5 relative top-5 rounded-lg hover:cursor-pointer hover:scale-105 duration-300 hover:bg-[#537de7] hover:text-black">
+                {isPending ? 'Registering...' : 'Sign Up'}
               </Button>
             </form>
             <div className="pt-5 flex flex-col justify-center items-center">

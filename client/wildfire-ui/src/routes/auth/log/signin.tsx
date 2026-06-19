@@ -10,9 +10,13 @@ import {
   FieldDescription,
 } from "../../../ui/components/ui/field";
 import { Input } from "../../../ui/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useLogUser } from "../../../hooks/use-auth";
 
 const SignIn = () => {
+  const navigate = useNavigate();
+  const { mutate: logUser, isPending } = useLogUser();
+
   const userValidation = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(8, "Password must be 8 characters"),
@@ -20,7 +24,11 @@ const SignIn = () => {
 
   type userLogin = z.infer<typeof userValidation>;
 
-  const formData = useForm<userLogin>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<userLogin>({
     resolver: zodResolver(userValidation),
     defaultValues: {
       email: "",
@@ -28,8 +36,12 @@ const SignIn = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<userLogin>) => {
-
+  const onSubmit = (data: userLogin) => {
+    logUser(data, {
+      onSuccess: () => {
+        navigate("/dashboard");
+      },
+    });
   };
 
   return (
@@ -58,11 +70,21 @@ const SignIn = () => {
             </span>
             <div className="flex h-px grow shrink-0 basis-0 flex-col items-center gap-2 bg-neutral-border" />
             {/* Form Component */}
-            <form onSubmit = {formData.handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <FieldGroup>
                 <Field>
                   <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <Input id="name" placeholder="you@pyrosense.io" required />
+                  <Input
+                    id="name"
+                    placeholder="you@pyrosense.io"
+                    required
+                    {...register("email")}
+                  />
+                  {errors.email && (
+                    <span className="text-red-500 text-xs">
+                      {errors.email.message}
+                    </span>
+                  )}
                 </Field>
                 <Field>
                   <FieldLabel>Password</FieldLabel>
@@ -70,7 +92,9 @@ const SignIn = () => {
                     id="password"
                     placeholder="Enter your password"
                     required
+                    {...register("password")}
                   />
+                  {errors.password && ( <span className = "text-red-500 text-xs">{errors.password.message}</span> )}
                   <Link
                     to="/forgot-password"
                     className="pl-[68%] text-[#2563EB] text-sm"
@@ -79,11 +103,15 @@ const SignIn = () => {
                   </Link>
                 </Field>
               </FieldGroup>
-              <Button className="bg-[#2563EB] text-white w-sm p-5 relative top-5 rounded-lg hover:cursor-pointer hover:scale-105 duration-300 hover:bg-[#537de7] hover:text-black">
-                Sign In
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="bg-[#2563EB] text-white w-sm p-5 relative top-5 rounded-lg hover:cursor-pointer hover:scale-105 duration-300 hover:bg-[#537de7] hover:text-black"
+              >
+                {isPending ? "Signing In..." : "Sign In"}
               </Button>
             </form>
-            <div className = "pt-5 flex flex-col justify-center items-center">
+            <div className="pt-5 flex flex-col justify-center items-center">
               <FieldDescription>
                 Don't have an account?{" "}
                 <Link className="text-[#2563EB] no-underline" to="/register">
