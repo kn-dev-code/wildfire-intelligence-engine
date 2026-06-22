@@ -14,6 +14,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useLogUser } from "../../../hooks/use-auth";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { googleLoginAuth } from "../../../hooks/use-google-auth";
+import {toast} from "sonner"
+
 const SignIn = () => {
   const navigate = useNavigate();
   const { mutate: logUser, isPending } = useLogUser();
@@ -40,7 +42,7 @@ const SignIn = () => {
   const onSubmit = (data: userLogin) => {
     logUser(data, {
       onSuccess: () => {
-        navigate("/dashboard");
+        navigate("/");
       },
     });
   };
@@ -51,9 +53,11 @@ const SignIn = () => {
     if (!credentialResponse.credential) return;
     try {
       const userData = await googleLoginAuth(credentialResponse.credential);
-      // configure toast success
-    } catch (e) {
-      // configure toast error
+      toast.success("User sign-in successful!")
+      navigate("/dashboard")
+    } catch (e: any) {
+      toast.error("User sign-in unsuccessful", e)
+      console.error(e)
     }
   };
 
