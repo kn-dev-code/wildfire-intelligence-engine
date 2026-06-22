@@ -3,7 +3,7 @@ import { API } from "../ui/lib/api"
 
 export const googleLoginAuth = async(credentials: string) => {
   try {
-    const response = await API.post("/api/auth/google", {
+    const response = await API.post("/api/v1/users/google-auth", {
     credentials: credentials
   })
   return response.data;

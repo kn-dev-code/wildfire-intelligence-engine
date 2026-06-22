@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DB_NAME: str
 
     # Google Auth
-    GOOGLE_CLIENT_ID: int
+    GOOGLE_CLIENT_ID: str
     CLIENT_SECRET: str
     GOOGLE_REDIRECT_URI: str
 

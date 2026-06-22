@@ -43,3 +43,7 @@ def logout(response: Response):
     )
     return {"status": "success", "message": "Successfully logged out"}
 
+@user_router.post("/google-auth")
+def google_auth(auth_code: str, response: Response, db: Session = Depends(get_db)):
+  return google_auth_controller(auth_code, response,  db)
+
