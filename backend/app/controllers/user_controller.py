@@ -2,18 +2,18 @@ from fastapi import HTTPException, status, Response, Request
 from sqlmodel import Session, select
 from app.models.user import UserRecord 
 from app.schemas.user_schema import UserCreate, UserLogin
-from app.core.security import verify_password, create_access_token, get_current_user_from_cookie
+from app.core.security import verify_password, create_access_token, get_current_user_from_cookie, hash_password
 from app.core.config import Settings
 import httpx
 
 def create_user_controller(register_data: UserCreate, db: Session):
    
-    simulated_hash = f"hashed_version_of_{register_data.password}" 
+    hashed_code = hash_password(register_data.password)
 
     db_user = UserRecord(
         username=register_data.username,
         email=register_data.email,
-        hashed_password=simulated_hash, 
+        hashed_password=hashed_code, 
         is_active=True 
     )
     
@@ -57,7 +57,7 @@ def login_user_controller(login_data: UserLogin, response: Response, db: Session
     return {
         "status": "success",
         "message": "Login successful",
-        "token": "simulated-jwt-token-string", 
+        "token": token, 
         "user": {
             "username": user.username,
             "email": user.email,
@@ -83,7 +83,7 @@ def update_user_controller(user_id: int, user_data: UserCreate, db: Session):
         )
     user.username = user_data.username
     user.email = user_data.email
-    user.hashed_password = f"hashed_version_of_{user_data.password}"
+    user.hashed_password = hash_password(user_data.password)
 
 
     db.add(user)

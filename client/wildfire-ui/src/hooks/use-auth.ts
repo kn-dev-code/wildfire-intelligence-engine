@@ -1,7 +1,7 @@
 import type { LoginType, RegisterType } from "../types/user/user-types";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient, QueryCache } from "@tanstack/react-query"
 import { API } from "../ui/lib/api";
-
+import { toast } from "sonner"
 export type UpdateType = {
   username?: string;
   email?: string;
@@ -32,17 +32,24 @@ export const useGetAllUsers = () => {
 }
 
 export const useGetUser = () => {
-  
-    return useQuery<User>({
-      queryKey: ['users', 'profile'],
-      queryFn: async () => {
+
+  return useQuery<User>({
+    queryKey: ['users', 'profile'],
+    queryFn: async () => {
+      try {
         const { data } = await API.get("/api/v1/users/get-user/me")
         return data.user;
-      },
-      retry: false,
-      staleTime: 1000 * 60 * 5,
-      
-    });
+      }
+      catch (e: any) {
+        const backendMessage = e.response?.data?.detail || "Unexpected error message";
+
+        toast.error( `Authentication error message: ${backendMessage}`);
+        throw new Error(backendMessage)
+      }
+    },
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+  });
 }
 
 export const useDeleteAllUsers = () => {
