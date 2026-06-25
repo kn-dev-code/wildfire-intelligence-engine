@@ -15,7 +15,6 @@ async def lifespan(app: FastAPI):
   
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
-app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 origins = [
    "http://localhost:5173",
@@ -30,6 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.include_router(main_router)
 
 

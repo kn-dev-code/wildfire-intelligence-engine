@@ -120,7 +120,7 @@ async def google_auth_controller(auth_code: str, response: Response, db: Session
         )
     
     if google_token_res.status_code != 200:
-        raise HTTPException(status_code=400, detail="Failed to verify code with Google")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Failed to verify code with Google")
     
     google_tokens = google_token_res.json()
     access_token = google_tokens.get("access_token")
@@ -150,7 +150,7 @@ async def google_auth_controller(auth_code: str, response: Response, db: Session
         db.refresh(user)
 
     if not user.is_active:
-        raise HTTPException(status_code=403, detail="This account has been deactivated")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This account has been deactivated")
 
     token_payload = {"sub": str(user.id), "email": user.email, "role": user.role}
     system_token = create_access_token(data=token_payload)
@@ -174,24 +174,30 @@ async def google_auth_controller(auth_code: str, response: Response, db: Session
         }
     }
 
-def get_user_controller(request: Request, db:Session):
-    try: 
-        token_payload = get_current_user_from_cookie(request)
-    except HTTPException:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+def get_user_controller(request: Request, db: Session):
     
-
+    token_payload = get_current_user_from_cookie(request)
+    if not token_payload:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        
     user_id = token_payload.get("sub")
-    find_user = select(UserRecord).where(UserRecord.id == int(user_id))
-    user = db.exec(find_user).first()
+    
+    try:
+        find_user = select(UserRecord).where(UserRecord.id == int(user_id))
+        user = db.exec(find_user).first()
+    except Exception as db_error:
+        print(f"Database Error: {db_error}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Database Error")
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        
     return {
         "status": "success",
         "message": "User data retrieved successfully",
-        "username": user.username,
-        "role": user.role,
-        "is_active": user.is_active,
+        "user": {
+            "username": user.username,
+            "role": user.role,
+            "is_active": user.is_active,
+        }
     }

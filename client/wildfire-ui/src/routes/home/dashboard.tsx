@@ -11,7 +11,7 @@ import Footer from "../constants/footer";
 import { useGetUser } from "../../hooks/use-auth";
 
 const Dashboard = () => {
-  const {data: user} = useGetUser();
+  const {data: user, isLoading} = useGetUser();
   const cards = {
     cardOne: {
       icon: FeatherMapPin,
@@ -32,6 +32,14 @@ const Dashboard = () => {
         "Crews log observations and incidents from the field, keeping every report synced with command in seconds.",
     },
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-screen h-screen bg-black flex items-center justify-center text-white">
+        Loading PyroSense...
+      </div>
+    );
+  }
 
   if (user) {
     return (
