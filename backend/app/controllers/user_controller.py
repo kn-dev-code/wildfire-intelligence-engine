@@ -105,13 +105,13 @@ def delete_user_controller(user_id: int, db:Session):
 
     return {"status": "success", "message": "Account permanently deleted"}
 
-async def google_auth_controller(auth_code: str, response: Response, db: Session):
+async def google_auth_controller(code: str, state: str, response: Response, db: Session):
     
     async with httpx.AsyncClient() as client:
         google_token_res = await client.post(
             "https://oauth2.googleapis.com/token",
             data={
-                "code": auth_code,
+                "code": code,
                 "client_id": Settings.GOOGLE_CLIENT_ID,
                 "client_secret": Settings.GOOGLE_CLIENT_SECRET,
                 "redirect_uri": "postmessage", 
