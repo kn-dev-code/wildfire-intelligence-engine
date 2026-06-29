@@ -3,7 +3,6 @@ from sqlmodel import Session
 from app.core.database import get_db
 from app.controllers.user_controller import create_user_controller, login_user_controller, update_user_controller, delete_user_controller, google_auth_controller, get_user_controller
 from app.schemas.user_schema import UserCreate, UserLogin, UserUpdate
-from app.core.security import create_access_token, verify_password
 
 user_router = APIRouter()
 
@@ -44,8 +43,8 @@ def logout(response: Response):
     return {"status": "success", "message": "Successfully logged out"}
 
 @user_router.post("/google-auth")
-def google_auth(code: str, state: str, response: Response, db: Session = Depends(get_db)):
-  return google_auth_controller(code, state, response,  db)
+def google_auth(google_credential: str, response: Response, db: Session = Depends(get_db)):
+  return google_auth_controller(google_credential, response,  db)
 
 @user_router.get("/get-user/me")
 def get_user(request: Request, db: Session = Depends(get_db)):

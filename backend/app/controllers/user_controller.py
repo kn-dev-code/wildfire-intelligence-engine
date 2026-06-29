@@ -1,14 +1,13 @@
 from fastapi import HTTPException, status, Response, Request
 from sqlmodel import Session, select
 import os
+import jwt
 from dotenv import load_dotenv
 from app.models.user import UserRecord 
-from app.schemas.user_schema import UserCreate, UserLogin, TokenBody
+from app.schemas.user_schema import UserCreate, UserLogin, TokenBody, GoogleAuthRequest
 from app.core.security import verify_password, create_access_token, get_current_user_from_cookie, hash_password
 from app.core.config import Settings
-import httpx
-from google.oauth2 import id_token
-from google.auth.transport import requests
+
 
 def create_user_controller(register_data: UserCreate, db: Session):
    
@@ -109,13 +108,23 @@ def delete_user_controller(user_id: int, db:Session):
 
     return {"status": "success", "message": "Account permanently deleted"}
 
-async def google_auth_controller(token_data: TokenBody, response: Response, db: Session):
+async def google_auth_controller(google_credential: GoogleAuthRequest, response: Response, db: Session):
     load_dotenv()
-    google_client_id = os.getenv("GOOGLE_CLIENT_ID")
-    id_info = id_token.verify_oauth2_token(token_data, requests.Request(), google_client_id)
-    
+    client_id = os.getenv("GOOGLE_CLIENT_ID")
+    try:
 
+        google_user = jwt.decode(google_credential.token_str, options={"verify_signature":False})
+        if google_user["aud"] != client_id: 
+            raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Token mismatch")
     
+    except:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail = "Invalid Google Token payload")
+
+    email = google_user.get("email")
+    username = google_user.get("name", email.split("@")[0])
+
+    find_user = select(UserRecord).where(UserRecord.email == email)
+    user = db.exec(find_user).first()
     if not user:
         user = UserRecord(
             username=username,
@@ -130,9 +139,8 @@ async def google_auth_controller(token_data: TokenBody, response: Response, db: 
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This account has been deactivated")
 
-    token_payload = {"sub": str(user.id), "email": user.email, "role": user.role}
-    system_token = create_access_token(data=token_payload)
-
+    session_data = TokenBody(username=user.username, email=user.email, role=user.role)
+    system_token = create_access_token(data=session_data.model_dump())
     response.set_cookie(
         key="access_token",
         value=system_token,
@@ -144,12 +152,8 @@ async def google_auth_controller(token_data: TokenBody, response: Response, db: 
 
     return {
         "status": "success",
-        "message": "Google authentication successful",
-        "user": {
-            "username": user.username,
-            "email": user.email,
-            "role": user.role
-        }
+        "message": "Google ID Token authentication successful",
+        "user": session_data
     }
 
 def get_user_controller(request: Request, db: Session):
