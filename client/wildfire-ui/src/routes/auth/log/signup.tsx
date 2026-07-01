@@ -10,11 +10,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { FieldDescription } from "../../../ui/components/ui/field";
 import { useRegisterUser } from "../../../hooks/use-auth";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
-import { googleAuth } from "../../../hooks/use-auth";
+import { useGoogleAuth } from "../../../hooks/use-auth";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const { mutate: regUser, isPending } = useRegisterUser();
+  const {mutateAsync: loginWithGoogle} = useGoogleAuth();
   const userValidation = z.object({
     username: z.string().min(8, "Username must be more than 8 characters"),
     email: z.string().email("Invalid email address"),
@@ -48,14 +49,14 @@ const SignUp = () => {
   ) => {
     if (!credentialResponse.credential) return;
     try {
-      const userData = await googleAuth(credentialResponse.credential);
-      toast.success("User sign-up successful!");
+      const userData = await loginWithGoogle(credentialResponse.credential);
+      toast.success("User sign-in successful!")
       navigate("/")
     } catch (e: any) {
-      toast.error("User sign-up unsucessful: ", e)
-      console.error(e);
+      toast.error("User sign-in unsuccessful", e)
+      console.error(e)
     }
-  }; 
+  };
 
  
   
@@ -76,9 +77,8 @@ const SignUp = () => {
           {/* Google Directory Header */}
           <div className="flex flex-col pb-[50%] gap-y-1">
             <GoogleLogin
-              onSuccess={(handleGoogleResponse) => {
-                console.log("Success! Google Token: ", handleGoogleResponse)
-              }}
+              onSuccess={(res) => handleGoogleResponse(res)}
+              
               onError={() => console.log("Google pop-up failed")}
             />
             <div className="flex h-px grow shrink-0 basis-0 flex-col items-center gap-2 bg-neutral-border" />

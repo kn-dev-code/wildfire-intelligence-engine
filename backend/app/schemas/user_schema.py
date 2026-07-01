@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr, Field, model_validator
 from typing import Optional, Literal
 
 class UserCreate(BaseModel):
-  username: str = Field(..., min_length=3, max_length =20)
+  username: Optional[str] = None
   email: EmailStr
   password: str = Field(..., min_length=8)
   auth_provider: Literal["standard", "google"] = "standard"

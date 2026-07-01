@@ -1,5 +1,5 @@
 import type { LoginType, RegisterType } from "../types/user/user-types";
-import { useQuery, useMutation, useQueryClient, QueryCache } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient} from "@tanstack/react-query"
 import { API } from "../ui/lib/api";
 export type UpdateType = {
   username?: string;
@@ -24,7 +24,7 @@ export const useGetAllUsers = () => {
   return useQuery<User[]>({
     queryKey: ['users', 'list'],
     queryFn: async () => {
-      const { data } = await API.get('/api/v1/get-all-users')
+      const { data } = await API.get('/v1/get-all-users')
       return data
     }
   })
@@ -36,7 +36,7 @@ export const useGetUser = () => {
     queryKey: ['users', 'profile'],
     queryFn: async () => {
       try {
-        const { data } = await API.get("/api/v1/users/get-user/me")
+        const { data } = await API.get("/v1/users/get-user/me")
         return data.user;
       }
       catch (e: any) {
@@ -53,7 +53,7 @@ export const useDeleteAllUsers = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const { data } = await API.delete('/api/v1/delete-all-users');
+      const { data } = await API.delete('/v1/delete-all-users');
       return data;
     },
     onSuccess: () => {
@@ -66,7 +66,7 @@ export const useUpdateAllUsers = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const { data } = await API.patch('/api/v1/users/update-all-users');
+      const { data } = await API.patch('/v1/users/update-all-users');
       return data;
     },
     onSuccess: () => {
@@ -81,7 +81,7 @@ export const useUpdateAllUsers = () => {
 export const useRegisterUser = () => {
   return useMutation({
     mutationFn: async (credentials: RegisterType) => {
-      const { data } = await API.post("/api/v1/users/register", credentials)
+      const { data } = await API.post("/v1/users/register", credentials)
       return data;
     }
   })
@@ -91,7 +91,7 @@ export const useLogUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (credentials: LoginType) => {
-      const { data } = await API.post("/api/v1/users/login", credentials)
+      const { data } = await API.post("/v1/users/login", credentials)
       return data;
     },
     onSuccess: (userData) => {
@@ -104,7 +104,7 @@ export const useUpdateUser = (userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (credentials: UpdateType) => {
-      const { data } = await API.patch(`/api/v1/users/update/${userId}`, credentials)
+      const { data } = await API.patch(`/v1/users/update/${userId}`, credentials)
       return data
     },
     onSuccess: () => {
@@ -117,7 +117,7 @@ export const useLogout = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      await API.post("/api/v1/users/logout")
+      await API.post("/v1/users/logout")
     },
     onSuccess: () => {
       queryClient.clear();
@@ -129,15 +129,18 @@ export const useLogout = () => {
   })
 }
 
-export const googleAuth = async (credential: string) => {
-  try {
-    const {data} = await API.post("/api/v1/users/google-auth", {token_str: credential})
-    return data;
-  } catch(e: any) {
-    console.log(`Error message from backend:${e.response?.data} and status:${e.response?.status}`)
-    throw new Error(e.response?.data?.message || "Unexpected error message")
-  }
-  
+
+export const useGoogleAuth = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async(credential: string) => {
+      const {data} = await API.post("/v1/users/google-auth", {token_str: credential})
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['users', 'profile']})
+    }
+  })
 }
 
 // isUpdating, isLoggingOut, isSigningUp, isLoggingIn

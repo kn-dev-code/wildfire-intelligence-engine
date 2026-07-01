@@ -9,7 +9,7 @@ user_router = APIRouter()
 
 @user_router.post("/register")
 def register(register_data: UserCreate, response: Response, db: Session = Depends(get_db)):
-  return create_user_controller(register_data, db)
+  return create_user_controller(register_data, response, db)
 
 @user_router.post("/login")
 def login(login_data: UserLogin, response: Response, db:Session = Depends(get_db)):
@@ -21,7 +21,7 @@ def update(user_id: int, update_data: UserUpdate, db:Session = Depends(get_db)):
 
 @user_router.delete("/delete/{user_id}")
 def delete(user_id: int, response: Response, db:Session = Depends(get_db)):
-  result = delete_user_controller(user_id, db)
+  result = delete_user_controller(user_id, response, db)
 
   response.delete_cookie(
     key="access_token",
@@ -44,8 +44,8 @@ def logout(response: Response):
 
 @user_router.post("/google-auth")
 def google_auth(google_credential: GoogleAuthRequest = Body(...), response: Response = Response(), db: Session = Depends(get_db)):
-  return google_auth_controller(google_credential, response,  db)
+  return google_auth_controller(google_credential, response, db)
 
 @user_router.get("/get-user/me")
 def get_user(request: Request, response: Response = Response(), db: Session = Depends(get_db)):
-  return get_user_controller(request=request, db=db)
+  return get_user_controller(request, db)

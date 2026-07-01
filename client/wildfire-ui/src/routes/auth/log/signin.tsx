@@ -13,12 +13,13 @@ import { Input } from "../../../ui/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogUser } from "../../../hooks/use-auth";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
-import {googleAuth} from "../../../hooks/use-auth"
-import {toast} from "sonner"
+import { useGoogleAuth } from "../../../hooks/use-auth";
+import { toast } from "sonner"
 
 const SignIn = () => {
   const navigate = useNavigate();
   const { mutate: logUser, isPending } = useLogUser();
+  const { mutateAsync: loginWithGoogle } = useGoogleAuth();
 
   const userValidation = z.object({
     email: z.string().email("Invalid email address"),
@@ -52,7 +53,7 @@ const SignIn = () => {
   ) => {
     if (!credentialResponse.credential) return;
     try {
-      const userData = await googleAuth(credentialResponse.credential);
+      const userData = await loginWithGoogle(credentialResponse.credential);
       toast.success("User sign-in successful!")
       navigate("/")
     } catch (e: any) {
@@ -78,9 +79,7 @@ const SignIn = () => {
           {/* Google Directory Header */}
           <div className="flex flex-col pb-[50%] gap-y-3">
             <GoogleLogin
-              onSuccess={(handleGoogleResponse) => {
-                console.log("Success! Google Token: ", handleGoogleResponse)
-              }}
+              onSuccess={(res) => handleGoogleResponse(res)}
               onError={() => console.log("Google pop-up failed")}
             />
             <div className="flex h-px grow shrink-0 basis-0 flex-col items-center gap-2 bg-neutral-border" />

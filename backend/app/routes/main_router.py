@@ -9,7 +9,7 @@ main_router = APIRouter()
 
 
 
-main_router.include_router(user_router, prefix="/api/v1/users", tags=["Users"])
-main_router.include_router(fire_router, prefix="/api/v1/fires", tags= ["Fires"])
-main_router.include_router(weather_router, prefix="/api/v1/weather", tags = ["Weather"])
-main_router.include_router(intelligence_router, prefix="/api/v1/intelligence", tags = ["Intelligence"])
+main_router.include_router(user_router, prefix="/v1/users", tags=["Users"])
+main_router.include_router(fire_router, prefix="/v1/fires", tags= ["Fires"])
+main_router.include_router(weather_router, prefix="/v1/weather", tags = ["Weather"])
+main_router.include_router(intelligence_router, prefix="/v1/intelligence", tags = ["Intelligence"])

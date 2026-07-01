@@ -10,14 +10,12 @@ from app.core.config import Settings
 
 # Environment gate helper
 IS_DEVELOPMENT = os.getenv("ENVIRONMENT", "development") == "development"
-
-
 def create_user_controller(register_data: UserCreate, response: Response, db: Session):
     try:
         hashed_code = hash_password(register_data.password)
-
+        fallback_username = register_data.username if register_data.username else register_data.email.split("@")[0]
         db_user = UserRecord(
-            username=register_data.username,
+            username=fallback_username,
             email=register_data.email,
             hashed_password=hashed_code, 
             is_active=True 
@@ -35,7 +33,7 @@ def create_user_controller(register_data: UserCreate, response: Response, db: Se
             value=token,
             httponly=True,
             samesite="lax",
-            secure=not IS_DEVELOPMENT,
+            secure=False,
             max_age=3600
         )
         
@@ -80,7 +78,7 @@ def login_user_controller(login_data: UserLogin, response: Response, db: Session
         value=token,
         httponly=True,
         samesite="lax",
-        secure=not IS_DEVELOPMENT,
+        secure=False,
         max_age=3600
     )
 
@@ -175,10 +173,10 @@ def google_auth_controller(google_credential: GoogleAuthRequest, response: Respo
     response.set_cookie(
         key="access_token",
         value=system_token,
-        httponly=False,
+        httponly=True,
         samesite="lax",
-        secure=not IS_DEVELOPMENT,
-        max_age=900
+        secure=False,
+        max_age=3600
     )
 
     return {
