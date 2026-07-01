@@ -1,11 +1,20 @@
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from pydantic import BaseModel, EmailStr, Field, model_validator
+from typing import Optional, Literal
 
 class UserCreate(BaseModel):
   username: str = Field(..., min_length=3, max_length =20)
   email: EmailStr
   password: str = Field(..., min_length=8)
+  auth_provider: Literal["standard", "google"] = "standard"
 
+  @model_validator(mode="after")
+  def validate_auth(self) -> "UserCreate":
+    if self.auth_provider == "standard" and self.password is None: 
+      raise ValueError("Password is required for standard registration")
+    if self.auth_provider == "google" and self.password is not None:
+      raise ValueError("Password is not required for google registration")
+    
+    return self
 
 class UserLogin(BaseModel):
   email: EmailStr

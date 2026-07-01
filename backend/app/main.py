@@ -18,7 +18,7 @@ app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
 origins = [
    "http://localhost:5173",
-   "http://localhost:5174",
+    "http://127.0.0.1:5173"
 ]
 
 app.add_middleware(

@@ -1,7 +1,6 @@
 import type { LoginType, RegisterType } from "../types/user/user-types";
 import { useQuery, useMutation, useQueryClient, QueryCache } from "@tanstack/react-query"
 import { API } from "../ui/lib/api";
-import { toast } from "sonner"
 export type UpdateType = {
   username?: string;
   email?: string;
@@ -41,10 +40,8 @@ export const useGetUser = () => {
         return data.user;
       }
       catch (e: any) {
-        const backendMessage = e.response?.data?.detail || "Unexpected error message";
-
-        toast.error( `Authentication error message: ${backendMessage}`);
-        throw new Error(backendMessage)
+        console.log(`Error message from backend:${e.response?.data} and status:${e.response?.status}`)
+        throw new Error(e.response?.data?.message || "Unexpected error message")
       }
     },
     retry: false,
@@ -130,6 +127,17 @@ export const useLogout = () => {
       console.error("Logout error", error)
     }
   })
+}
+
+export const googleAuth = async (credential: string) => {
+  try {
+    const {data} = await API.post("/api/v1/users/google-auth", {token_str: credential})
+    return data;
+  } catch(e: any) {
+    console.log(`Error message from backend:${e.response?.data} and status:${e.response?.status}`)
+    throw new Error(e.response?.data?.message || "Unexpected error message")
+  }
+  
 }
 
 // isUpdating, isLoggingOut, isSigningUp, isLoggingIn

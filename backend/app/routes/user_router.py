@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Depends, Response, Request
+from fastapi import APIRouter, Depends, Response, Request, Body
 from sqlmodel import Session
 from app.core.database import get_db
 from app.controllers.user_controller import create_user_controller, login_user_controller, update_user_controller, delete_user_controller, google_auth_controller, get_user_controller
-from app.schemas.user_schema import UserCreate, UserLogin, UserUpdate
+from app.schemas.user_schema import UserCreate, UserLogin, UserUpdate, GoogleAuthRequest
 
 user_router = APIRouter()
 
 
 @user_router.post("/register")
-def register(register_data: UserCreate, db: Session = Depends(get_db)):
+def register(register_data: UserCreate, response: Response, db: Session = Depends(get_db)):
   return create_user_controller(register_data, db)
 
 @user_router.post("/login")
@@ -27,7 +27,7 @@ def delete(user_id: int, response: Response, db:Session = Depends(get_db)):
     key="access_token",
         httponly=True,
         samesite="lax",
-        secure=True
+        secure=False
   )
 
   return result
@@ -43,9 +43,9 @@ def logout(response: Response):
     return {"status": "success", "message": "Successfully logged out"}
 
 @user_router.post("/google-auth")
-def google_auth(google_credential: str, response: Response, db: Session = Depends(get_db)):
+def google_auth(google_credential: GoogleAuthRequest = Body(...), response: Response = Response(), db: Session = Depends(get_db)):
   return google_auth_controller(google_credential, response,  db)
 
 @user_router.get("/get-user/me")
-def get_user(request: Request, db: Session = Depends(get_db)):
+def get_user(request: Request, response: Response = Response(), db: Session = Depends(get_db)):
   return get_user_controller(request=request, db=db)

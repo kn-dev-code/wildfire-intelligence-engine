@@ -10,7 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FieldDescription } from "../../../ui/components/ui/field";
 import { useRegisterUser } from "../../../hooks/use-auth";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
-import { googleLoginAuth } from "../../../hooks/use-google-auth";
+import { googleAuth } from "../../../hooks/use-auth";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ const SignUp = () => {
   ) => {
     if (!credentialResponse.credential) return;
     try {
-      const userData = await googleLoginAuth(credentialResponse.credential);
+      const userData = await googleAuth(credentialResponse.credential);
       toast.success("User sign-up successful!");
       navigate("/")
     } catch (e: any) {
@@ -76,7 +76,9 @@ const SignUp = () => {
           {/* Google Directory Header */}
           <div className="flex flex-col pb-[50%] gap-y-1">
             <GoogleLogin
-              onSuccess={handleGoogleResponse}
+              onSuccess={(handleGoogleResponse) => {
+                console.log("Success! Google Token: ", handleGoogleResponse)
+              }}
               onError={() => console.log("Google pop-up failed")}
             />
             <div className="flex h-px grow shrink-0 basis-0 flex-col items-center gap-2 bg-neutral-border" />
