@@ -78,8 +78,8 @@ const SignUp = () => {
           <div className="flex flex-col pb-[50%] gap-y-1">
             <GoogleLogin
               onSuccess={(res) => handleGoogleResponse(res)}
-              
               onError={() => console.log("Google pop-up failed")}
+              width="400"
             />
             <div className="flex h-px grow shrink-0 basis-0 flex-col items-center gap-2 bg-neutral-border" />
             <span className="text-caption font-caption text-subtext-color text-md">
